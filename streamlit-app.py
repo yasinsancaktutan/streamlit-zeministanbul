@@ -3,13 +3,12 @@ import pandas as pd
 import pickle
 
 st.write("""
-# Araç adedi tahmini
-Bu uygulama, İBB'ye ait BEŞİKTAŞ YILDIZ sensöründen geçecek araç sayısını tahmin etmektedir.
+# Ortalama Hız Tahmini
+Bu uygulama, İBB'ye ait BEŞİKTAŞ YILDIZ sensöründen geçecek araçların ortalama hızını tahmin etmektedir.
 Kullanılan veri, İBB Açık Veri portalından indirilmiştir.
 """)
 
 st.sidebar.header('Kullanıcı Girdileri')
-
 
 def user_input_features():
     # island = st.sidebar.selectbox('Island', ('Biscoe', 'Dream', 'Torgersen'))
@@ -29,15 +28,16 @@ def user_input_features():
     features = pd.DataFrame(data, index=[0])
     return features
 
-
 input_df = user_input_features()
+input_df_unscaled = input_df.copy()
 
 scaler = pickle.load(open('scaler.pkl', 'rb'))
 
 input_df[['MAXIMUM_WIND','AVERAGE_WIND','hour', 'month', 'day']] = scaler.transform(input_df[['MAXIMUM_WIND','AVERAGE_WIND','hour', 'month', 'day']])
 
 # Displays the user input features
-st.subheader('Kullanıcı girdileri')
+st.subheader('Kullanıcı Girdileri')
+st.write(input_df_unscaled)
 
 # Reads in saved model
 load_clf = pickle.load(open('arac_tahmin.pkl', 'rb'))
@@ -45,4 +45,5 @@ load_clf = pickle.load(open('arac_tahmin.pkl', 'rb'))
 # Apply model to make predictions
 prediction = load_clf.predict(input_df)
 
+st.subheader('Tahmin Edilen Ortalama Hız')
 st.write(prediction)
